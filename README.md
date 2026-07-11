@@ -67,6 +67,19 @@ Audit trail for auth events and donor operations. Big brother but for blood bank
 ### Control Settings
 Light/dark theme toggle. Dark mode supremacy.
 
+### Mobile & small screens
+HemoGrid doesn't gaslight you on a phone. Screens ≤768px get the full responsive treatment:
+
+- **Slide-in sidebar** — hamburger opens an overlay menu; tap outside or pick a nav link and it politely leaves
+- **Full-width layout** — no desktop sidebar eating half your screen
+- **Touch-friendly targets** — buttons and nav items hit the 44px minimum so your thumbs aren't playing precision mode
+- **Stacked header** — shorter labels on narrow screens ("Donors" not a paragraph, "+ Add" not a manifesto)
+- **Scrollable donor table** — swipe sideways through columns instead of squinting at a crushed spreadsheet
+- **Single-column everything else** — stats cards, charts, settings, and add/edit donor forms stack like civilized mobile UI
+- **Safe area padding** — notched phones get respect (`viewport-fit=cover`, the works)
+
+Open it on your phone. Rotate it. Judge the sidebar animation. It's fine on desktop too — we didn't break the big screen experience to win mobile points.
+
 ### Sidebar emergency desk
 There's a phone number on the sidebar for emergencies. It's hardcoded. Very professional. Very permanent.
 
