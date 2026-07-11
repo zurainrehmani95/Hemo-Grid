@@ -1,0 +1,25 @@
+# Local Obsidian knowledge base — do not upload to GitHub
+HemoGrid-Vault/
+
+# .NET build output
+[Bb]in/
+[Oo]bj/
+
+# Node / frontend
+**/node_modules/
+dist/
+dist-ssr/
+
+# Logs & env
+*.log
+.env
+.env.*
+
+# Local API secrets — copy appsettings.example.json → appsettings.json
+BloodBankAPI/appsettings.json
+
+# Editor / OS
+.vs/
+.idea/
+.DS_Store
+Thumbs.db

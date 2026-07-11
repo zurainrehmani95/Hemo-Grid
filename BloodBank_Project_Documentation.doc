@@ -1,0 +1,1522 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Blood Bank Management System - Project Documentation</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+ @page { size: A4; margin: 2.2cm 2.4cm; }
+ body { font-family: Calibri, "Segoe UI", sans-serif; font-size: 11pt; color: #202124; line-height: 1.45; }
+ h1.title { font-size: 28pt; color: #b00020; margin: 0 0 2pt 0; }
+ p.subtitle { font-size: 12.5pt; font-style: italic; color: #606060; margin: 0 0 6pt 0; }
+ p.meta { font-size: 10pt; color: #888; margin: 0 0 18pt 0; }
+ h1 { font-size: 18pt; color: #c62828; border-bottom: 2px solid #f0c0c0; padding-bottom: 3pt; margin-top: 26pt; }
+ h2 { font-size: 13.5pt; color: #37474f; margin-top: 16pt; }
+ h3 { font-size: 11.5pt; color: #455a64; margin-top: 12pt; }
+ p { margin: 4pt 0 8pt 0; }
+ ul, ol { margin: 2pt 0 10pt 0; }
+ li { margin: 2pt 0; }
+ code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 9.5pt; color: #7b1fa2; }
+ pre { font-family: Consolas, "Courier New", monospace; font-size: 8.5pt; color: #1a1a1a;
+       background: #f5f5f5; border: 1px solid #e0e0e0; padding: 8pt 10pt; margin: 4pt 0 10pt 0;
+       white-space: pre-wrap; }
+ table { border-collapse: collapse; width: 100%; margin: 4pt 0 12pt 0; font-size: 10pt; }
+ th { background: #c62828; color: #ffffff; text-align: left; padding: 5pt 8pt; border: 1px solid #b0b0b0; }
+ td { padding: 5pt 8pt; border: 1px solid #cfcfcf; vertical-align: top; }
+ tr:nth-child(even) td { background: #faf5f5; }
+ .toc td { border: none; padding: 3pt 8pt; }
+ .toc td.num { color: #c62828; font-weight: bold; width: 60pt; }
+ .chapter-intro { font-style: italic; color: #555; margin: 2pt 0 12pt 0; }
+ .footer { text-align: center; font-style: italic; font-size: 9pt; color: #808080; margin-top: 26pt; }
+ .pagebreak { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<h1 class="title">Blood Bank Management System</h1>
+<p class="subtitle">HemoGrid &mdash; Project Documentation &amp; Complete Code Reference</p>
+<p class="meta">A .NET 8/9 Web API + Entity Framework Core + MySQL backend with a React (Vite) frontend.</p>
+
+<!-- ============================ TABLE OF CONTENTS ============================ -->
+<h1>Table of Contents</h1>
+<p>This document explains what the software is, how its files are organised, and walks through every
+piece of source code. Each chapter is introduced below.</p>
+<table class="toc">
+<tr><td class="num">Ch. 1</td><td><b>Introduction, Intentions &amp; Goals</b> &mdash; what the system is for, who uses it, and what it can do.</td></tr>
+<tr><td class="num">Ch. 2</td><td><b>System Architecture Overview</b> &mdash; the two-part (frontend + backend) design and the technology stack.</td></tr>
+<tr><td class="num">Ch. 3</td><td><b>Backend File Layout (Component-Based)</b> &mdash; how the API is split into Controllers, Services, DTOs and Models.</td></tr>
+<tr><td class="num">Ch. 4</td><td><b>Frontend File Layout (blood-bank-ui)</b> &mdash; the React project folders and the components directory.</td></tr>
+<tr><td class="num">Ch. 5</td><td><b>Backend Code Walkthrough</b> &mdash; every C# file (startup, models, DTOs, services, controllers) with explanations.</td></tr>
+<tr><td class="num">Ch. 6</td><td><b>Frontend Code Walkthrough</b> &mdash; every JavaScript/JSX file (entry point, API client, App, components) with explanations.</td></tr>
+<tr><td class="num">Ch. 7</td><td><b>How a Request Flows End-to-End</b> &mdash; following one action from a button click to the database and back.</td></tr>
+<tr><td class="num">Ch. 8</td><td><b>Running the Application</b> &mdash; the commands to build and start both halves.</td></tr>
+</table>
+
+<!-- ============================ CHAPTER 1 ============================ -->
+<h1 class="pagebreak">Chapter 1 &mdash; Introduction, Intentions &amp; Goals</h1>
+<p class="chapter-intro">This chapter introduces the software in plain language: why it exists, who it is for, and the full list of things it can do.</p>
+
+<h2>1.1 What is this software?</h2>
+<p>The <b>Blood Bank Management System</b> (branded &ldquo;HemoGrid&rdquo;) is an administrative web application for a
+regional blood centre. It lets authorised staff manage a registry of blood donors and keep an eye on
+simple operational metrics and a running activity/cash-flow ledger. It is built as two cooperating
+programs: a <b>web API</b> that stores and serves data, and a <b>web UI</b> that staff use in their browser.</p>
+
+<h2>1.2 Intentions and goals</h2>
+<ul>
+<li><b>Central donor registry</b> &mdash; keep every donor's details (name, age, blood group, contact, eligibility) in one searchable place.</li>
+<li><b>Fast, reliable data entry</b> &mdash; add, edit and remove donor records without data getting out of sync between screen and database.</li>
+<li><b>At-a-glance insight</b> &mdash; show totals, eligibility counts and a blood-group distribution chart.</li>
+<li><b>Accountability</b> &mdash; record every create/update/delete in an audit ledger so actions are traceable.</li>
+<li><b>Clean, maintainable code</b> &mdash; organise the project so each file has a single, clear job (the reason for the component-based backend and the components folder on the frontend).</li>
+<li><b>Pleasant experience</b> &mdash; a modern interface with light/dark themes and an animated login screen.</li>
+</ul>
+
+<h2>1.3 What the system can do (features)</h2>
+<table>
+<tr><th>Area</th><th>Capability</th></tr>
+<tr><td>Authentication</td><td>Admin login screen gates the whole workspace.</td></tr>
+<tr><td>Donor Registry</td><td>List all donors, search by blood group, add, edit (&ldquo;Modify&rdquo;) and delete (&ldquo;Purge&rdquo;) donors.</td></tr>
+<tr><td>Safe delete</td><td>If a donor is linked to donation records, the system clears the dependent rows first so the delete still succeeds.</td></tr>
+<tr><td>Statistics</td><td>Total donors, eligible vs. deferred counts, and a blood-group distribution bar chart.</td></tr>
+<tr><td>Ledger &amp; Cash Flow</td><td>An audit trail of operations with a running balance and a sparkline history.</td></tr>
+<tr><td>Settings</td><td>Switch between light and dark themes.</td></tr>
+</table>
+
+<!-- ============================ CHAPTER 2 ============================ -->
+<h1 class="pagebreak">Chapter 2 &mdash; System Architecture Overview</h1>
+<p class="chapter-intro">This chapter shows the big picture: the two halves of the system, how they talk, and the technologies used.</p>
+
+<p>The application is split into two independent programs that communicate over HTTP using JSON. Neither
+can see the other's internals; they only agree on the shape of the data exchanged.</p>
+<pre>React + Vite frontend          HTTP (JSON)          .NET Web API            SQL           MySQL
+(blood-bank-ui)      ----------------------&gt;    (BloodBankAPI)      -----------&gt;      blood_bank_ms
+runs on :5173        &lt;----------------------    runs on :5236       &lt;-----------      (donors, etc.)
+     Axios                 CORS / JSON             Controllers + EF Core       Pomelo MySQL</pre>
+
+<table>
+<tr><th>Layer</th><th>Technology</th><th>Role</th></tr>
+<tr><td>Frontend</td><td>React, Vite, Axios</td><td>The browser UI staff interact with; calls the API.</td></tr>
+<tr><td>Backend</td><td>.NET (ASP.NET Core) Web API</td><td>Receives HTTP requests, applies logic, returns JSON.</td></tr>
+<tr><td>Data access</td><td>Entity Framework Core (Pomelo MySQL provider)</td><td>Maps C# objects to database rows.</td></tr>
+<tr><td>Database</td><td>MySQL (schema <code>blood_bank_ms</code>)</td><td>Stores the actual records.</td></tr>
+</table>
+
+<!-- ============================ CHAPTER 3 ============================ -->
+<h1 class="pagebreak">Chapter 3 &mdash; Backend File Layout (Component-Based)</h1>
+<p class="chapter-intro">This chapter explains how the API project is organised. The layout is component-based: responsibilities are separated into distinct folders instead of one giant controller.</p>
+
+<p>The API follows a <b>component-based</b> organisation. Rather than putting all logic in a single
+controller, the code is separated by responsibility, and the donor operations are split into four small
+controllers &mdash; one per CRUD action (Create, Read, Update, Delete).</p>
+
+<pre>BloodBankAPI/
+|-- Program.cs                     App startup: database, CORS, JSON, routing
+|-- appsettings.json               Configuration (MySQL connection string)
+|
+|-- Controllers/                   HTTP endpoints, one file per CRUD action
+|   |-- DonorsReadController.cs     (R) GET  /donors, /donors/search, /donors/audit-trail
+|   |-- DonorCreateController.cs    (C) POST /donors
+|   |-- DonorUpdateController.cs    (U) PUT  /donors/{id}
+|   |-- DonorDeleteController.cs    (D) DELETE /donors/{id}
+|
+|-- Dtos/                          "Data Transfer Objects": the shapes sent over the wire
+|   |-- DonorFormInput.cs           what the React form sends to the API
+|   |-- AuditLogEntry.cs            one line of the audit/cash-flow ledger
+|
+|-- Services/                      Reusable logic shared by the controllers
+|   |-- AuditLedger.cs              the in-memory ledger (record + read)
+|   |-- DonorMapper.cs              turns a Donor entity into the API's flat shape
+|   |-- DonorWriteHelpers.cs        shared create/update logic (blood-group lookup, age)
+|
+|-- Models/                        EF Core entities (one class per database table)
+    |-- Donor.cs, BloodGroup.cs, Donation.cs, BloodScreening.cs,
+    |-- Admin.cs, AuditLog.cs, BloodInventory.cs, BloodRequest.cs,
+    |-- Hospital.cs, Patient.cs
+    |-- BloodBankMsContext.cs       the EF Core "DbContext" tying entities to tables</pre>
+
+<h2>3.1 Why this structure?</h2>
+<ul>
+<li><b>Controllers/</b> hold only the HTTP wiring. Splitting them by CRUD keeps each file short and focused, so a person can open <code>DonorDeleteController.cs</code> and immediately understand deletion.</li>
+<li><b>Dtos/</b> define the exact JSON the frontend and backend agree on, kept separate from the database entities.</li>
+<li><b>Services/</b> contain logic that more than one controller needs, so it is written once and reused.</li>
+<li><b>Models/</b> are the database entities generated by EF Core; they mirror the tables.</li>
+</ul>
+<p>All four donor controllers deliberately share the same route, <code>api/donors</code>. This works because
+each one handles a different HTTP verb, so there is never a routing clash.</p>
+
+<!-- ============================ CHAPTER 4 ============================ -->
+<h1 class="pagebreak">Chapter 4 &mdash; Frontend File Layout (blood-bank-ui)</h1>
+<p class="chapter-intro">This chapter details the React project's folders, especially the components directory where the UI is broken into small, single-purpose pieces.</p>
+
+<pre>blood-bank-ui/
+|-- index.html                 The single HTML page Vite serves
+|-- package.json               Dependencies and scripts (npm run dev, build)
+|-- vite.config.js             Vite build/dev configuration
+|
+|-- src/
+    |-- main.jsx               Entry point: mounts &lt;App /&gt; into the page
+    |-- App.jsx                The "container": owns all state + API calls
+    |-- index.css / App.css    Global styles, including the light/dark theme tokens
+    |
+    |-- services/
+    |   |-- api.js             The single Axios client every request goes through
+    |
+    |-- components/            The UI broken into small, reusable pieces
+        |-- LoginScreen.jsx    The logged-out sign-in view
+        |-- WaveCanvas.jsx     The animated background used on the login screen
+        |-- Sidebar.jsx        Left navigation rail + logout
+        |-- TopHeader.jsx      Title bar + "Onboard New Donor" button
+        |-- DonorsTab.jsx      Search bar + donor results table
+        |-- StatsTab.jsx       Summary cards + distribution chart
+        |-- LedgerTab.jsx      Balance card + sparkline + audit table
+        |-- SettingsTab.jsx    Light/dark theme switch
+        |-- DonorModal.jsx     Add/edit donor dialog
+        |-- Footer.jsx         Address/copyright footer</pre>
+
+<h2>4.1 How the pieces relate</h2>
+<p><code>App.jsx</code> is the brain: it holds all the state (the donor list, the form, the theme, etc.) and all
+the functions that call the API. Everything inside <code>components/</code> is &ldquo;presentational&rdquo; &mdash; each component
+receives data and callback functions from <code>App.jsx</code> as <i>props</i> and simply renders them. This keeps the
+logic in one place and the visuals cleanly separated.</p>
+
+<!-- ============================ CHAPTER 5 ============================ -->
+<h1 class="pagebreak">Chapter 5 &mdash; Backend Code Walkthrough</h1>
+<p class="chapter-intro">This chapter presents every backend file with its full source and a plain-English explanation of what it does.</p>
+
+<h2>5.1 Program.cs &mdash; application startup</h2>
+<p>This file runs once when the API starts. It reads the MySQL connection string, registers the database
+context, opens CORS for the local frontend, configures JSON, and maps the controllers. The order matters:
+<code>UseCors</code> must run before <code>MapControllers</code>.</p>
+<pre>using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Explicit version instead of ServerVersion.AutoDetect, which connects at startup and would
+// take the whole API down if MySQL happens to be unavailable. Change this if your server differs.
+var serverVersion = new MySqlServerVersion(new Version(8, 0, 0));
+
+builder.Services.AddDbContext&lt;BloodBankAPI.Models.BloodBankMsContext&gt;(options =&gt;
+    options.UseMySql(connectionString, serverVersion));
+
+// Allow any localhost origin in development, since Vite's port isn't always 5173.
+builder.Services.AddCors(options =&gt;
+{
+    options.AddPolicy("AllowReactApp",
+        policy =&gt; policy
+            .SetIsOriginAllowed(origin =&gt;
+            {
+                if (string.IsNullOrEmpty(origin)) return false;
+                if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri)) return false;
+                return uri.Host == "localhost" || uri.Host == "127.0.0.1";
+            })
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
+builder.Services.AddControllers().AddJsonOptions(options =&gt;
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+// UseCors must run before MapControllers.
+app.UseCors("AllowReactApp");
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.MapControllers();
+
+app.Run();</pre>
+
+<h2>5.2 appsettings.json &mdash; configuration</h2>
+<p>Holds the MySQL connection string the startup file reads. Server, database name, user and password live here.</p>
+<pre>{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=blood_bank_ms;User=root;Password=ghost230;"
+  },
+  "Logging": {
+    "LogLevel": { "Default": "Information", "Microsoft.AspNetCore": "Warning" }
+  },
+  "AllowedHosts": "*"
+}</pre>
+
+<h2>5.3 Models &mdash; the database entities</h2>
+<p>The Models folder contains one C# class per database table (generated by EF Core's database-first
+scaffolding). The most important is <code>Donor</code>. Note the special <code>Age</code> property: the table has no age
+column, so age is calculated from <code>DateOfBirth</code> and marked <code>[NotMapped]</code> so EF does not look for a column.</p>
+<h3>Models/Donor.cs</h3>
+<pre>using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BloodBankAPI.Models;
+
+public partial class Donor
+{
+    public uint Id { get; set; }
+
+    // The table has no age column, so derive it from date_of_birth. [NotMapped] stops EF
+    // from looking for a column.
+    [NotMapped]
+    public int Age
+    {
+        get
+        {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var years = today.Year - DateOfBirth.Year;
+            if (DateOfBirth &gt; today.AddYears(-years)) years--;
+            return years &lt; 0 ? 0 : years;
+        }
+    }
+
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
+    public byte BloodGroupId { get; set; }
+    public string Gender { get; set; } = null!;
+    public DateOnly DateOfBirth { get; set; }
+    public string Phone { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string Address { get; set; } = null!;
+    public DateOnly RegistrationDate { get; set; }
+    public DateOnly? LastDonationDate { get; set; }
+    public string? EligibilityStatus { get; set; }
+    public DateTime? CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+
+    // Navigation properties: the linked blood group and this donor's donations.
+    public virtual BloodGroup BloodGroup { get; set; } = null!;
+    public virtual ICollection&lt;Donation&gt; Donations { get; set; } = new List&lt;Donation&gt;();
+}</pre>
+
+<h3>Related entities (referenced by the donor code)</h3>
+<p><code>BloodGroup</code> stores the group <code>Code</code> (e.g. &ldquo;A+&rdquo;). <code>Donation</code> and <code>BloodScreening</code> matter for deletion,
+because a donor may be referenced by donation rows, which are in turn referenced by screening rows.</p>
+<pre>// Models/BloodGroup.cs (key fields)
+public partial class BloodGroup
+{
+    public byte Id { get; set; }
+    public string Code { get; set; } = null!;   // "A+", "O-", ...
+    // navigation collections: Donors, Donations, BloodRequests, Patients, BloodInventory
+}
+
+// Models/Donation.cs (key fields)
+public partial class Donation
+{
+    public uint Id { get; set; }
+    public uint DonorId { get; set; }           // links back to a Donor
+    public byte BloodGroupId { get; set; }
+    // ... units, dates, statuses ...
+    public virtual BloodScreening? BloodScreening { get; set; }
+}
+
+// Models/BloodScreening.cs (key fields)
+public partial class BloodScreening
+{
+    public uint Id { get; set; }
+    public uint DonationId { get; set; }         // links back to a Donation
+    // ... HIV/HepB/HepC/Syphilis statuses, notes, date ...
+}</pre>
+
+<h3>Other scaffolded entities</h3>
+<p>The remaining model classes are standard EF entities that map one-to-one to their tables. They are not
+used directly by the donor feature but complete the schema:</p>
+<table>
+<tr><th>Entity</th><th>Table</th><th>Represents</th></tr>
+<tr><td>Admin</td><td>admins</td><td>Administrative user accounts.</td></tr>
+<tr><td>AuditLog</td><td>audit_logs</td><td>A database-side audit table (separate from the in-memory ledger).</td></tr>
+<tr><td>BloodInventory</td><td>blood_inventory</td><td>Units available per blood group.</td></tr>
+<tr><td>BloodRequest</td><td>blood_requests</td><td>Requests for blood from patients.</td></tr>
+<tr><td>Hospital</td><td>hospitals</td><td>Hospitals in the network.</td></tr>
+<tr><td>Patient</td><td>patients</td><td>Patients linked to hospitals and blood groups.</td></tr>
+</table>
+
+<h3>Models/BloodBankMsContext.cs &mdash; the DbContext</h3>
+<p>The <code>DbContext</code> is EF Core's gateway to the database. It exposes each table as a <code>DbSet&lt;T&gt;</code> and, in
+<code>OnModelCreating</code>, describes how each entity maps to columns, keys, indexes and relationships. The mapping
+code is long and auto-generated; the essential parts are the DbSets and (as an example) the Donor mapping:</p>
+<pre>public partial class BloodBankMsContext : DbContext
+{
+    public BloodBankMsContext(DbContextOptions&lt;BloodBankMsContext&gt; options) : base(options) { }
+
+    public virtual DbSet&lt;Admin&gt; Admins { get; set; }
+    public virtual DbSet&lt;AuditLog&gt; AuditLogs { get; set; }
+    public virtual DbSet&lt;BloodGroup&gt; BloodGroups { get; set; }
+    public virtual DbSet&lt;BloodInventory&gt; BloodInventories { get; set; }
+    public virtual DbSet&lt;BloodRequest&gt; BloodRequests { get; set; }
+    public virtual DbSet&lt;BloodScreening&gt; BloodScreenings { get; set; }
+    public virtual DbSet&lt;Donation&gt; Donations { get; set; }
+    public virtual DbSet&lt;Donor&gt; Donors { get; set; }
+    public virtual DbSet&lt;Hospital&gt; Hospitals { get; set; }
+    public virtual DbSet&lt;Patient&gt; Patients { get; set; }
+
+    // Connection is configured in Program.cs via AddDbContext, so nothing to do here.
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // ... one entity() block per table. Example for Donor: ...
+        modelBuilder.Entity&lt;Donor&gt;(entity =&gt;
+        {
+            entity.HasKey(e =&gt; e.Id).HasName("PRIMARY");
+            entity.ToTable("donors");
+            entity.Property(e =&gt; e.FirstName).HasColumnName("first_name");
+            entity.Property(e =&gt; e.BloodGroupId).HasColumnName("blood_group_id");
+            // ... every other column mapped to its snake_case name ...
+            entity.HasOne(d =&gt; d.BloodGroup).WithMany(p =&gt; p.Donors)
+                .HasForeignKey(d =&gt; d.BloodGroupId)
+                .HasConstraintName("fk_donors_blood_groups");
+        });
+        // ... blocks for Admin, Donation, BloodScreening, Patient, etc. ...
+    }
+}</pre>
+
+<h2>5.4 DTOs &mdash; the data contract</h2>
+<p>DTOs (Data Transfer Objects) define the exact JSON exchanged with the frontend, kept separate from the
+database entities.</p>
+<h3>Dtos/DonorFormInput.cs</h3>
+<pre>namespace BloodBankAPI.Dtos;
+
+// This is the exact shape the React form sends up as JSON. It is deliberately kept separate
+// from the EF Core "Donor" entity so the frontend can speak in simple values (a blood-group
+// code like "A+", age as plain text) while the entity/database keep their own structure.
+public class DonorFormInput
+{
+    public int Id { get; set; }
+    public string FirstName { get; set; } = "";
+    public string LastName { get; set; } = "";
+
+    // Age is a string (not an int) because the number &lt;input&gt; can arrive empty, and there is
+    // no age column in the database - the server converts it into a date_of_birth.
+    public string? Age { get; set; }
+
+    public string Gender { get; set; } = "Male";
+    public string Phone { get; set; } = "";
+    public string Email { get; set; } = "";
+    public string BloodGroup { get; set; } = "A+";
+    public string EligibilityStatus { get; set; } = "Eligible";
+}</pre>
+<h3>Dtos/AuditLogEntry.cs</h3>
+<pre>using System;
+
+namespace BloodBankAPI.Dtos;
+
+// A single line in the in-memory audit / cash-flow ledger that the "Ledger & Cash Flow"
+// tab displays. This is not a database table - see AuditLedger for where it lives.
+public class AuditLogEntry
+{
+    public int Id { get; set; }
+    public DateTime Timestamp { get; set; }
+    public string Operation { get; set; } = "";
+    public string Details { get; set; } = "";
+    public decimal CashFlowAmount { get; set; }
+    public string LogType { get; set; } = "System";
+}</pre>
+
+<h2>5.5 Services &mdash; shared logic</h2>
+<p>The Services folder holds logic reused by more than one controller, so it is written once.</p>
+
+<h3>Services/AuditLedger.cs</h3>
+<p>A thread-safe, in-memory list of ledger entries shared by all controllers. It resets when the API
+restarts. <code>Record</code> appends a line; <code>Snapshot</code> returns a copy newest-first.</p>
+<pre>using System;
+using System.Collections.Generic;
+using System.Linq;
+using BloodBankAPI.Dtos;
+
+namespace BloodBankAPI.Services;
+
+public static class AuditLedger
+{
+    private static readonly List&lt;AuditLogEntry&gt; _logs = new()
+    {
+        new AuditLogEntry { Id = 1, Timestamp = DateTime.Now.AddDays(-1), Operation = "SYSTEM COLD BOOT", Details = "Data synchronization pipeline established with local MySQL instance.", CashFlowAmount = 0.00m, LogType = "System" },
+        new AuditLogEntry { Id = 2, Timestamp = DateTime.Now.AddHours(-4), Operation = "GOVERNMENT GRANT", Details = "Administrative overhead subsidy allocation received.", CashFlowAmount = 25000.00m, LogType = "Financial" }
+    };
+
+    // Return a copy of the ledger, newest entries first.
+    public static List&lt;AuditLogEntry&gt; Snapshot()
+    {
+        lock (_logs)
+        {
+            return _logs.OrderByDescending(l =&gt; l.Timestamp).ToList();
+        }
+    }
+
+    // Append a new line, giving it the next id automatically. The lock keeps concurrent
+    // requests from corrupting the list.
+    public static void Record(string operation, string details, decimal cashFlowAmount, string logType)
+    {
+        lock (_logs)
+        {
+            _logs.Add(new AuditLogEntry
+            {
+                Id = _logs.Any() ? _logs.Max(l =&gt; l.Id) + 1 : 1,
+                Timestamp = DateTime.Now,
+                Operation = operation,
+                Details = details,
+                CashFlowAmount = cashFlowAmount,
+                LogType = logType
+            });
+        }
+    }
+}</pre>
+
+<h3>Services/DonorMapper.cs</h3>
+<p>Converts a <code>Donor</code> entity into the flat object the frontend expects &mdash; blood group as its code string,
+plus the computed age &mdash; so every controller returns donors in the same shape.</p>
+<pre>using BloodBankAPI.Models;
+
+namespace BloodBankAPI.Services;
+
+public static class DonorMapper
+{
+    public static object ToApiShape(Donor d) =&gt; new
+    {
+        id = d.Id,
+        firstName = d.FirstName,
+        lastName = d.LastName,
+        age = d.Age,
+        gender = d.Gender,
+        phone = d.Phone,
+        email = d.Email,
+        bloodGroup = d.BloodGroup != null ? d.BloodGroup.Code : null,
+        eligibilityStatus = d.EligibilityStatus
+    };
+}</pre>
+
+<h3>Services/DonorWriteHelpers.cs</h3>
+<p>Shared write logic used by both the create and update controllers: find the blood-group id from a code,
+copy editable fields from the form, and translate an age string into a birth date.</p>
+<pre>using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using BloodBankAPI.Dtos;
+using BloodBankAPI.Models;
+
+namespace BloodBankAPI.Services;
+
+public static class DonorWriteHelpers
+{
+    // Look up the blood_groups row whose code matches the requested value (e.g. "A+") and
+    // return its id. Falls back to the first group if nothing matches.
+    public static async Task&lt;byte&gt; ResolveBloodGroupIdAsync(BloodBankMsContext context, string bloodGroupCode)
+    {
+        var groups = await context.Set&lt;BloodGroup&gt;().ToListAsync();
+
+        var match = groups.FirstOrDefault(g =&gt;
+            g.Code != null && g.Code.Equals(bloodGroupCode, StringComparison.OrdinalIgnoreCase));
+
+        if (match != null) return match.Id;
+        return groups.FirstOrDefault()?.Id ?? (byte)1;
+    }
+
+    // Copy the editable text fields from the form onto the entity.
+    public static void ApplyEditableFields(Donor donor, DonorFormInput input)
+    {
+        donor.FirstName = input.FirstName;
+        donor.LastName = input.LastName;
+        donor.Gender = input.Gender;
+        donor.Phone = input.Phone;
+        donor.Email = input.Email;
+        donor.EligibilityStatus = input.EligibilityStatus;
+    }
+
+    // There is no age column, so translate the entered age into a date_of_birth. Invalid or
+    // empty values are simply ignored (the existing birth date is left untouched).
+    public static void ApplyAgeAsBirthDate(Donor donor, string? age)
+    {
+        if (int.TryParse(age, out var years) && years &gt; 0 && years &lt; 120)
+        {
+            donor.DateOfBirth = DateOnly.FromDateTime(DateTime.Today.AddYears(-years));
+        }
+    }
+}</pre>
+
+<h2>5.6 Controllers &mdash; the HTTP endpoints (one per CRUD action)</h2>
+
+<h3>Controllers/DonorsReadController.cs (Read)</h3>
+<p>Owns every GET: list all donors, search by blood group, and read the audit trail. It loads the blood
+group with <code>.Include(...)</code> so the response can include the group code.</p>
+<pre>using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using BloodBankAPI.Dtos;
+using BloodBankAPI.Models;
+using BloodBankAPI.Services;
+
+namespace BloodBankAPI.Controllers;
+
+[ApiController]
+[Route("api/donors")]
+public class DonorsReadController : ControllerBase
+{
+    private readonly BloodBankMsContext _context;
+    public DonorsReadController(BloodBankMsContext context) { _context = context; }
+
+    // GET: api/donors  ->  return every donor
+    [HttpGet]
+    public async Task&lt;ActionResult&gt; GetDonors()
+    {
+        try
+        {
+            var donors = await _context.Set&lt;Donor&gt;()
+                .Include(d =&gt; d.BloodGroup)
+                .ToListAsync();
+            return Ok(donors.Select(DonorMapper.ToApiShape));
+        }
+        catch (Exception ex)
+        {
+            var detail = ex.InnerException?.Message ?? ex.Message;
+            return StatusCode(500, $"Internal directory query failed: {detail}");
+        }
+    }
+
+    // GET: api/donors/search?bloodGroup=A+  ->  donors filtered by blood group
+    [HttpGet("search")]
+    public async Task&lt;ActionResult&gt; SearchByBloodGroup([FromQuery] string bloodGroup)
+    {
+        try
+        {
+            var donors = await _context.Set&lt;Donor&gt;().Include(d =&gt; d.BloodGroup).ToListAsync();
+
+            if (!string.IsNullOrEmpty(bloodGroup))
+            {
+                donors = donors
+                    .Where(d =&gt; d.BloodGroup != null
+                        && !string.IsNullOrEmpty(d.BloodGroup.Code)
+                        && d.BloodGroup.Code.Equals(bloodGroup, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+            return Ok(donors.Select(DonorMapper.ToApiShape));
+        }
+        catch (Exception ex)
+        {
+            var detail = ex.InnerException?.Message ?? ex.Message;
+            return StatusCode(500, $"Directory search failed: {detail}");
+        }
+    }
+
+    // GET: api/donors/audit-trail  ->  the in-memory cash-flow ledger
+    [HttpGet("audit-trail")]
+    public ActionResult&lt;IEnumerable&lt;AuditLogEntry&gt;&gt; GetAuditTrail()
+    {
+        return Ok(AuditLedger.Snapshot());
+    }
+}</pre>
+
+<h3>Controllers/DonorCreateController.cs (Create)</h3>
+<p>Handles <code>POST /donors</code>. Builds a new entity, fills required columns, resolves the blood group, stores the
+age as a birth date, saves, and records the action in the ledger.</p>
+<pre>using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using BloodBankAPI.Dtos;
+using BloodBankAPI.Models;
+using BloodBankAPI.Services;
+
+namespace BloodBankAPI.Controllers;
+
+[ApiController]
+[Route("api/donors")]
+public class DonorCreateController : ControllerBase
+{
+    private readonly BloodBankMsContext _context;
+    public DonorCreateController(BloodBankMsContext context) { _context = context; }
+
+    // POST: api/donors  ->  insert a new donor row
+    [HttpPost]
+    public async Task&lt;ActionResult&gt; AddDonor([FromBody] DonorFormInput input)
+    {
+        try
+        {
+            var donor = new Donor
+            {
+                Address = "Islamabad",                                   // address is NOT NULL in the DB
+                DateOfBirth = new DateOnly(2000, 1, 1),                  // placeholder, replaced by the age below
+                RegistrationDate = DateOnly.FromDateTime(DateTime.Today),
+                BloodGroupId = await DonorWriteHelpers.ResolveBloodGroupIdAsync(_context, input.BloodGroup)
+            };
+
+            DonorWriteHelpers.ApplyEditableFields(donor, input);
+            DonorWriteHelpers.ApplyAgeAsBirthDate(donor, input.Age);
+
+            _context.Set&lt;Donor&gt;().Add(donor);
+            await _context.SaveChangesAsync();
+
+            AuditLedger.Record(
+                "DONOR REGISTRATION",
+                $"Successfully onboarded donor profile: {input.FirstName} {input.LastName}.",
+                1500.00m,
+                "Financial");
+
+            return Ok(DonorMapper.ToApiShape(donor));
+        }
+        catch (Exception ex)
+        {
+            var detail = ex.InnerException?.Message ?? ex.Message;
+            return StatusCode(500, $"Database injection rejected transaction: {detail}");
+        }
+    }
+}</pre>
+
+<h3>Controllers/DonorUpdateController.cs (Update)</h3>
+<p>Handles <code>PUT /donors/{id}</code>. Finds the existing donor (casting the id to <code>uint</code> to match the key type),
+applies the edits, saves, and logs a &ldquo;PROFILE MODIFICATION&rdquo; entry.</p>
+<pre>using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using BloodBankAPI.Dtos;
+using BloodBankAPI.Models;
+using BloodBankAPI.Services;
+
+namespace BloodBankAPI.Controllers;
+
+[ApiController]
+[Route("api/donors")]
+public class DonorUpdateController : ControllerBase
+{
+    private readonly BloodBankMsContext _context;
+    public DonorUpdateController(BloodBankMsContext context) { _context = context; }
+
+    // PUT: api/donors/{id}  ->  update the donor with this id
+    [HttpPut("{id}")]
+    public async Task&lt;IActionResult&gt; UpdateDonor(int id, [FromBody] DonorFormInput input)
+    {
+        // The id in the URL must match the id in the body, otherwise we'd edit the wrong row.
+        if (id != input.Id) return BadRequest("Target identifier tracking mismatch.");
+
+        // Donor.Id is a uint. FindAsync won't coerce an int, so cast it or it throws.
+        var donor = await _context.Set&lt;Donor&gt;().FindAsync((uint)id);
+        if (donor == null) return NotFound();
+
+        try
+        {
+            DonorWriteHelpers.ApplyEditableFields(donor, input);
+            donor.BloodGroupId = await DonorWriteHelpers.ResolveBloodGroupIdAsync(_context, input.BloodGroup);
+            DonorWriteHelpers.ApplyAgeAsBirthDate(donor, input.Age);
+
+            // The entity is already tracked (we fetched it with FindAsync), so saving persists
+            // the changes - no need to force EntityState.Modified.
+            await _context.SaveChangesAsync();
+
+            AuditLedger.Record(
+                "PROFILE MODIFICATION",
+                $"Administrative revision applied to Donor Tracking Index #{id}.",
+                0.00m,
+                "System");
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Target patch modification failed: {ex.Message}");
+        }
+    }
+}</pre>
+
+<h3>Controllers/DonorDeleteController.cs (Delete)</h3>
+<p>Handles <code>DELETE /donors/{id}</code>. It tries a straight delete; if the database blocks it because the donor is
+referenced by donation rows, it removes those dependent rows (and their screenings) first, then retries.</p>
+<pre>using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using BloodBankAPI.Models;
+using BloodBankAPI.Services;
+
+namespace BloodBankAPI.Controllers;
+
+[ApiController]
+[Route("api/donors")]
+public class DonorDeleteController : ControllerBase
+{
+    private readonly BloodBankMsContext _context;
+    public DonorDeleteController(BloodBankMsContext context) { _context = context; }
+
+    // DELETE: api/donors/{id}  ->  delete this donor (and its dependent rows if required)
+    [HttpDelete("{id}")]
+    public async Task&lt;IActionResult&gt; DeleteDonor(int id)
+    {
+        var donor = await _context.Set&lt;Donor&gt;().FindAsync((uint)id);
+        if (donor == null) return NotFound();
+
+        try
+        {
+            var savedName = $"{donor.FirstName} {donor.LastName}";
+
+            try
+            {
+                // Happy path: no related rows, so the donor deletes straight away.
+                _context.Set&lt;Donor&gt;().Remove(donor);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // The donor is referenced by donation rows, so MySQL rejected the delete.
+                // Remove the dependent rows first, then delete the donor.
+                var linkedDonations = await _context.Set&lt;Donation&gt;()
+                    .Where(d =&gt; d.DonorId == donor.Id)
+                    .ToListAsync();
+
+                if (linkedDonations.Count &gt; 0)
+                {
+                    var donationIds = linkedDonations.Select(d =&gt; d.Id).ToList();
+                    var linkedScreenings = await _context.Set&lt;BloodScreening&gt;()
+                        .Where(s =&gt; donationIds.Contains(s.DonationId))
+                        .ToListAsync();
+
+                    _context.Set&lt;BloodScreening&gt;().RemoveRange(linkedScreenings);
+                    _context.Set&lt;Donation&gt;().RemoveRange(linkedDonations);
+                }
+
+                _context.Set&lt;Donor&gt;().Remove(donor);
+                await _context.SaveChangesAsync();
+            }
+
+            AuditLedger.Record(
+                "RECORD PURGE",
+                $"Permanently dropped file indexing for donor: {savedName}.",
+                -450.00m,
+                "Financial");
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Purge tracking operations aborted: {ex.Message}");
+        }
+    }
+}</pre>
+
+<!-- ============================ CHAPTER 6 ============================ -->
+<h1 class="pagebreak">Chapter 6 &mdash; Frontend Code Walkthrough</h1>
+<p class="chapter-intro">This chapter presents every frontend file with its full source and an explanation. App.jsx holds the logic; the components render it.</p>
+
+<h2>6.1 main.jsx &mdash; the entry point</h2>
+<p>Vite loads this first. It mounts the <code>&lt;App /&gt;</code> component into the page's root element.</p>
+<pre>import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App.jsx'
+import './App.css'
+
+createRoot(document.getElementById('root')).render(
+  &lt;StrictMode&gt;
+    &lt;App /&gt;
+  &lt;/StrictMode&gt;,
+)</pre>
+
+<h2>6.2 services/api.js &mdash; the API client</h2>
+<p>A single Axios instance every request goes through. The base URL points at the API; the response
+interceptor attaches a readable <code>friendlyMessage</code> so the UI can tell &ldquo;server error&rdquo; from &ldquo;server unreachable&rdquo;.</p>
+<pre>import axios from 'axios';
+
+const API = axios.create({
+  baseURL: 'http://localhost:5236/api', // http, port 5236 - matches the API's launch profile
+  timeout: 15000,
+  headers: { 'Content-Type': 'application/json' }
+});
+
+// Attach a readable failure reason so the UI can tell "server error" from "server unreachable".
+API.interceptors.response.use(
+  (response) =&gt; response,
+  (error) =&gt; {
+    if (error.response) {
+      const body = error.response.data;
+      error.friendlyMessage = `Server error ${error.response.status}: ` +
+        (typeof body === 'string' ? body : JSON.stringify(body));
+    } else if (error.request) {
+      error.friendlyMessage =
+        `No response from API at ${API.defaults.baseURL}. ` +
+        `Is the backend running (dotnet run) and is MySQL up?`;
+    } else {
+      error.friendlyMessage = error.message;
+    }
+    console.error('[API ERROR]', error.friendlyMessage, error);
+    return Promise.reject(error);
+  }
+);
+
+export default API;</pre>
+
+<h2>6.3 App.jsx &mdash; the container</h2>
+<p>This is the heart of the frontend. It owns all state (donor list, form, theme, auth, ledger) and all the
+functions that call the API, then hands data and callbacks to the presentational components.</p>
+<pre>import { useState, useEffect } from 'react';
+import API from './services/api';
+import './index.css';
+
+import LoginScreen from './components/LoginScreen';
+import Sidebar from './components/Sidebar';
+import TopHeader from './components/TopHeader';
+import DonorsTab from './components/DonorsTab';
+import StatsTab from './components/StatsTab';
+import LedgerTab from './components/LedgerTab';
+import SettingsTab from './components/SettingsTab';
+import DonorModal from './components/DonorModal';
+import Footer from './components/Footer';
+
+function App() {
+  const [theme, setTheme] = useState('light');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Auth
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  const [activeTab, setActiveTab] = useState('donors');
+
+  // Donor directory
+  const [donors, setDonors] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // Audit ledger
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+
+  const quotes = [ /* rotating login-screen quotes */ ];
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+
+  // Add/edit modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formMode, setFormMode] = useState('add');
+  const [formData, setFormData] = useState({
+    id: 0, firstName: '', lastName: '', age: '', gender: 'Male', phone: '', email: '', bloodGroup: 'A+', eligibilityStatus: 'Eligible'
+  });
+
+  const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Cycle the login-screen quote every couple of minutes
+  useEffect(() =&gt; {
+    const quoteInterval = setInterval(() =&gt; {
+      setCurrentQuoteIndex((prevIndex) =&gt; (prevIndex + 1) % quotes.length);
+    }, 120000);
+    return () =&gt; clearInterval(quoteInterval);
+  }, []);
+
+  const handleLogin = (e) =&gt; {
+    e.preventDefault();
+    if (username === 'admin' && password === 'ghost230') {
+      setIsLoggedIn(true);
+      setLoginError('');
+    } else {
+      setLoginError('Invalid administrative credentials.');
+    }
+  };
+
+  // Load donors - either all of them or filtered by the selected blood group.
+  const handleSearch = async (e) =&gt; {
+    if (e) e.preventDefault();
+    setLoading(true); setError(''); setHasSearched(true);
+    try {
+      let response;
+      if (selectedGroup) {
+        response = await API.get(`/donors/search?bloodGroup=${encodeURIComponent(selectedGroup)}`);
+      } else {
+        response = await API.get('/donors');
+      }
+      setDonors(response.data);
+    } catch (err) {
+      setError(err.friendlyMessage || 'Could not fetch synchronized directory lines.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAuditTrail = async () =&gt; {
+    setAuditLoading(true);
+    try {
+      const response = await API.get('/donors/audit-trail');
+      setAuditLogs(response.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAuditLoading(false);
+    }
+  };
+
+  // On login, pull the initial data.
+  useEffect(() =&gt; {
+    if (isLoggedIn) { handleSearch(); fetchAuditTrail(); }
+  }, [isLoggedIn]);
+
+  const openAddModal = () =&gt; {
+    setFormMode('add');
+    setFormData({ id: 0, firstName: '', lastName: '', age: '', gender: 'Male', phone: '', email: '', bloodGroup: selectedGroup || 'A+', eligibilityStatus: 'Eligible' });
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (donor) =&gt; {
+    setFormMode('edit');
+    const groupText = donor.bloodGroup && typeof donor.bloodGroup === 'object' ? donor.bloodGroup.name || donor.bloodGroup.type || 'A+' : donor.bloodGroup || 'A+';
+    // age is sent to the API as a string, so coerce it here
+    setFormData({ ...donor, age: donor.age != null ? String(donor.age) : '', bloodGroup: groupText });
+    setIsModalOpen(true);
+  };
+
+  // Create (add) or update (edit), then refetch so the table + ledger stay in sync.
+  const handleFormSubmit = async (e) =&gt; {
+    e.preventDefault();
+    try {
+      if (formMode === 'add') { await API.post('/donors', formData); }
+      else { await API.put(`/donors/${formData.id}`, formData); }
+      setIsModalOpen(false); handleSearch(); fetchAuditTrail();
+    } catch (err) {
+      alert(err.friendlyMessage || 'Error committing transactional schema changes.');
+    }
+  };
+
+  const handleDeleteDonor = async (id) =&gt; {
+    if (window.confirm('Are you certain you wish to purge this record index completely?')) {
+      try {
+        await API.delete(`/donors/${id}`);
+        handleSearch(); fetchAuditTrail();
+      } catch (err) {
+        alert(err.friendlyMessage || 'Failed to drop data index.');
+      }
+    }
+  };
+
+  // Logged-out view
+  if (!isLoggedIn) {
+    return (
+      &lt;LoginScreen
+        theme={theme}
+        username={username} setUsername={setUsername}
+        password={password} setPassword={setPassword}
+        loginError={loginError} handleLogin={handleLogin}
+        quotes={quotes} currentQuoteIndex={currentQuoteIndex}
+        isHovered={isHovered} setIsHovered={setIsHovered}
+      /&gt;
+    );
+  }
+
+  // Logged-in workspace
+  return (
+    &lt;div className={`theme-wrapper ${theme}`}&gt;
+      &lt;div className={`app-workspace-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}&gt;
+        &lt;Sidebar activeTab={activeTab} setActiveTab={setActiveTab}
+          onLogout={() =&gt; { setIsLoggedIn(false); setHasSearched(false); }} /&gt;
+        &lt;div className="app-content-viewport"&gt;
+          &lt;TopHeader activeTab={activeTab} sidebarCollapsed={sidebarCollapsed}
+            setSidebarCollapsed={setSidebarCollapsed} onAddDonor={openAddModal} /&gt;
+          {activeTab === 'donors' && (
+            &lt;DonorsTab selectedGroup={selectedGroup} setSelectedGroup={setSelectedGroup}
+              handleSearch={handleSearch} bloodGroups={bloodGroups}
+              hasSearched={hasSearched} error={error} loading={loading}
+              donors={donors} openEditModal={openEditModal} handleDeleteDonor={handleDeleteDonor} /&gt;
+          )}
+          {activeTab === 'stats' && &lt;StatsTab donors={donors} bloodGroups={bloodGroups} /&gt;}
+          {activeTab === 'audit' && &lt;LedgerTab auditLogs={auditLogs} auditLoading={auditLoading} /&gt;}
+          {activeTab === 'settings' && &lt;SettingsTab theme={theme} setTheme={setTheme} /&gt;}
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;Footer /&gt;
+      {isModalOpen && (
+        &lt;DonorModal formMode={formMode} formData={formData} setFormData={setFormData}
+          bloodGroups={bloodGroups} onClose={() =&gt; setIsModalOpen(false)} onSubmit={handleFormSubmit} /&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+
+export default App;</pre>
+
+<h2>6.4 components/ &mdash; the UI pieces</h2>
+
+<h3>components/WaveCanvas.jsx</h3>
+<p>A self-contained animated background (sine waves + floating particles) for the login screen. It manages
+its own canvas and animation loop; the parent only passes <code>isHovered</code> to speed it up and shift the colour.</p>
+<pre>import { useRef, useEffect } from 'react';
+
+function WaveCanvas({ isHovered }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() =&gt; {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let animationId;
+
+    const resizeCanvas = () =&gt; {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    let phase = 0;
+    const baseSpeed = 0.003, hoverSpeed = 0.005;
+    let currentSpeed = baseSpeed;
+
+    // Floating background particles
+    const particles = [];
+    for (let i = 0; i &lt; 45; i++) {
+      particles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        size: Math.random() * 2 + 0.5,
+        speedX: Math.random() * 0.4 - 0.2,
+        speedY: Math.random() * -0.5 - 0.1,
+        alpha: Math.random() * 0.5 + 0.2
+      });
+    }
+
+    const render = () =&gt; {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const targetSpeed = isHovered ? hoverSpeed : baseSpeed;
+      currentSpeed += (targetSpeed - currentSpeed) * 0.1;
+      phase += currentSpeed;
+
+      particles.forEach(p =&gt; {
+        p.x += p.speedX * (isHovered ? 2 : 1);
+        p.y += p.speedY * (isHovered ? 1.8 : 1);
+        if (p.y &lt; 0) { p.y = canvas.height; p.x = Math.random() * canvas.width; }
+        if (p.x &lt; 0 || p.x &gt; canvas.width) p.x = Math.random() * canvas.width;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${isHovered ? '255, 0, 85' : '225, 29, 72'}, ${p.alpha})`;
+        ctx.shadowBlur = isHovered ? 8 : 2;
+        ctx.shadowColor = 'rgba(255, 0, 85, 0.5)';
+        ctx.fill();
+      });
+
+      // Draw several overlapping sine waves
+      const waveLayers = [
+        { amplitude: 45, frequency: 0.002,  alpha: 0.18, offset: 0 },
+        { amplitude: 30, frequency: 0.0035, alpha: 0.12, offset: Math.PI / 3 },
+        { amplitude: 60, frequency: 0.0015, alpha: 0.08, offset: Math.PI / 1.5 },
+        { amplitude: 20, frequency: 0.005,  alpha: 0.15, offset: Math.PI / 2 }
+      ];
+      waveLayers.forEach((layer, i) =&gt; {
+        ctx.beginPath();
+        const colorGlow = isHovered ? `rgba(255, 0, 85, ${layer.alpha + 0.4})` : `rgba(2, 132, 199, ${layer.alpha})`;
+        ctx.strokeStyle = colorGlow;
+        ctx.lineWidth = i === 0 ? 3 : 1.5;
+        ctx.shadowBlur = isHovered ? 50 : 10;
+        ctx.shadowColor = isHovered ? 'rgba(255, 0, 85, 0.8)' : 'rgba(2, 132, 199, 0.4)';
+        for (let x = 0; x &lt;= canvas.width; x += 10) {
+          const y = canvas.height / 2 +
+            Math.sin(x * layer.frequency + phase + layer.offset) * layer.amplitude +
+            Math.cos(x * 0.001 - phase * 0.5) * 20;
+          if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      });
+      ctx.shadowBlur = 0;
+      animationId = requestAnimationFrame(render);
+    };
+
+    render();
+    return () =&gt; {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', resizeCanvas);
+    };
+  }, [isHovered]);
+
+  return &lt;canvas ref={canvasRef} className="ps3-wave-canvas-substrate" /&gt;;
+}
+
+export default WaveCanvas;</pre>
+
+<h3>components/LoginScreen.jsx</h3>
+<p>The logged-out view: the animated background plus the sign-in card. It renders auth state passed from App
+and reports events back through setter/handler props.</p>
+<pre>import WaveCanvas from './WaveCanvas';
+
+function LoginScreen({ theme, username, setUsername, password, setPassword,
+  loginError, handleLogin, quotes, currentQuoteIndex, isHovered, setIsHovered }) {
+  return (
+    &lt;div className={`theme-wrapper ${theme}`}&gt;
+      &lt;div className="login-wrapper"&gt;
+        &lt;WaveCanvas isHovered={isHovered} /&gt;
+        &lt;div className="login-glow-box"
+          onMouseEnter={() =&gt; setIsHovered(true)}
+          onMouseLeave={() =&gt; setIsHovered(false)}&gt;
+          &lt;div className="login-card"&gt;
+            &lt;h2&gt;BLOOD BANK PORTAL&lt;/h2&gt;
+            &lt;p className="login-subtitle"&gt;AUTHORIZED PERSONNEL ONLY&lt;/p&gt;
+            &lt;div className="login-quote-box animate-fade-in" key={currentQuoteIndex}&gt;
+              &lt;p className="login-quote-text"&gt;{quotes[currentQuoteIndex]}&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;form onSubmit={handleLogin}&gt;
+              &lt;div className="form-group"&gt;
+                &lt;label&gt;Username&lt;/label&gt;
+                &lt;input type="text" value={username} onChange={(e) =&gt; setUsername(e.target.value)} placeholder="Enter admin username" required /&gt;
+              &lt;/div&gt;
+              &lt;div className="form-group"&gt;
+                &lt;label&gt;Security Key&lt;/label&gt;
+                &lt;input type="password" value={password} onChange={(e) =&gt; setPassword(e.target.value)} placeholder="Enter portal password" required /&gt;
+              &lt;/div&gt;
+              {loginError && &lt;p className="form-error"&gt;{loginError}&lt;/p&gt;}
+              &lt;button type="submit" className="login-btn"&gt;Initialize Session&lt;/button&gt;
+            &lt;/form&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default LoginScreen;</pre>
+
+<h3>components/Sidebar.jsx</h3>
+<p>The left navigation rail: brand, admin profile, the four tab buttons, and the logout button.</p>
+<pre>function Sidebar({ activeTab, setActiveTab, onLogout }) {
+  return (
+    &lt;aside className="app-sidebar"&gt;
+      &lt;div className="sidebar-brand-area"&gt;
+        &lt;div className="brand-pulse-icon"&gt;&#129703;&lt;/div&gt;
+        &lt;div className="brand-title-text"&gt;HEMO&lt;span className="brand-sub-title"&gt;GRID&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div className="sidebar-admin-profile"&gt;
+        &lt;div className="profile-avatar"&gt;AD&lt;/div&gt;
+        &lt;div className="profile-details"&gt;
+          &lt;span className="profile-name"&gt;System Admin&lt;/span&gt;
+          &lt;span className="profile-status"&gt;Online Mode&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;nav className="sidebar-nav-menu"&gt;
+        &lt;button className={`nav-menu-item ${activeTab === 'donors' ? 'active' : ''}`} onClick={() =&gt; setActiveTab('donors')}&gt;Donor Registry&lt;/button&gt;
+        &lt;button className={`nav-menu-item ${activeTab === 'stats' ? 'active' : ''}`} onClick={() =&gt; setActiveTab('stats')}&gt;Statistics Matrix&lt;/button&gt;
+        &lt;button className={`nav-menu-item ${activeTab === 'audit' ? 'active' : ''}`} onClick={() =&gt; setActiveTab('audit')}&gt;Ledger & Cash Flow&lt;/button&gt;
+        &lt;button className={`nav-menu-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() =&gt; setActiveTab('settings')}&gt;Control Settings&lt;/button&gt;
+      &lt;/nav&gt;
+      &lt;div className="sidebar-footer"&gt;
+        &lt;button className="sidebar-logout-btn" onClick={onLogout}&gt;Terminate Session&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/aside&gt;
+  );
+}
+
+export default Sidebar;</pre>
+
+<h3>components/TopHeader.jsx</h3>
+<p>The top bar: the sidebar toggle, the current tab's title, and the &ldquo;Onboard New Donor&rdquo; button (donors tab only).</p>
+<pre>function TopHeader({ activeTab, sidebarCollapsed, setSidebarCollapsed, onAddDonor }) {
+  return (
+    &lt;header className="viewport-top-header"&gt;
+      &lt;div className="viewport-header-left-group"&gt;
+        &lt;button className={`hamburger-menu-toggle ${sidebarCollapsed ? 'is-closed' : 'is-open'}`}
+          onClick={() =&gt; setSidebarCollapsed(!sidebarCollapsed)} aria-label="Toggle Sidebar Menu"&gt;
+          &lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;h2&gt;
+          {activeTab === 'donors' && 'DONOR REGISTRY CONTROL'}
+          {activeTab === 'stats' && 'ANALYTICS & DISTRIBUTIONS'}
+          {activeTab === 'audit' && 'SYSTEM REVENUE LEDGERS'}
+          {activeTab === 'settings' && 'SYSTEM WORKSPACE CONFIGURATIONS'}
+        &lt;/h2&gt;
+      &lt;/div&gt;
+      {activeTab === 'donors' && (
+        &lt;button className="top-bar-action-btn" onClick={onAddDonor}&gt;+ Onboard New Donor&lt;/button&gt;
+      )}
+    &lt;/header&gt;
+  );
+}
+
+export default TopHeader;</pre>
+
+<h3>components/DonorsTab.jsx</h3>
+<p>The donor registry tab: a search bar and the results table with Modify/Purge buttons per row. It is
+&ldquo;dumb&rdquo; &mdash; all data and handlers come from App via props.</p>
+<pre>function DonorsTab({ selectedGroup, setSelectedGroup, handleSearch, bloodGroups,
+  hasSearched, error, loading, donors, openEditModal, handleDeleteDonor }) {
+  return (
+    &lt;div className="tab-view-container animate-fade-in"&gt;
+      &lt;section className="google-search-container"&gt;
+        &lt;div className="google-logo"&gt;BLOOD DIRECTORY&lt;/div&gt;
+        &lt;form onSubmit={handleSearch} className="google-search-bar-form"&gt;
+          &lt;select value={selectedGroup} onChange={(e) =&gt; setSelectedGroup(e.target.value)} className="google-select"&gt;
+            &lt;option value=""&gt;All Blood Records&lt;/option&gt;
+            {bloodGroups.map((group) =&gt; &lt;option key={group} value={group}&gt;{group}&lt;/option&gt;)}
+          &lt;/select&gt;
+          &lt;button type="submit" className="google-search-btn"&gt;Execute Index Search&lt;/button&gt;
+        &lt;/form&gt;
+      &lt;/section&gt;
+
+      {hasSearched && (
+        &lt;main className="dashboard-content"&gt;
+          {error && &lt;div className="alert-message error-box"&gt;{error}&lt;/div&gt;}
+          {loading && &lt;div className="alert-message loading-box"&gt;Scanning Indexed MySQL Rows...&lt;/div&gt;}
+          {!loading && !error && (
+            &lt;table className="donor-table"&gt;
+              &lt;thead&gt;&lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Full Name&lt;/th&gt;&lt;th&gt;Age&lt;/th&gt;&lt;th&gt;Group&lt;/th&gt;&lt;th&gt;Gender&lt;/th&gt;&lt;th&gt;Phone&lt;/th&gt;&lt;th&gt;Email&lt;/th&gt;&lt;th&gt;Status&lt;/th&gt;&lt;th&gt;Operations&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+              &lt;tbody&gt;
+                {donors.length &gt; 0 ? donors.map((donor) =&gt; {
+                  const renderGroup = donor.bloodGroup && typeof donor.bloodGroup === 'object'
+                    ? donor.bloodGroup.name || donor.bloodGroup.type : donor.bloodGroup;
+                  return (
+                    &lt;tr key={donor.id}&gt;
+                      &lt;td&gt;#{donor.id}&lt;/td&gt;
+                      &lt;td&gt;{donor.firstName} {donor.lastName}&lt;/td&gt;
+                      &lt;td&gt;{donor.age || '&mdash;'} Yrs&lt;/td&gt;
+                      &lt;td&gt;&lt;span className="blood-badge-icon"&gt;{renderGroup || 'N/A'}&lt;/span&gt;&lt;/td&gt;
+                      &lt;td&gt;{donor.gender}&lt;/td&gt;
+                      &lt;td&gt;{donor.phone}&lt;/td&gt;
+                      &lt;td&gt;{donor.email}&lt;/td&gt;
+                      &lt;td&gt;&lt;span className={`status-badge ${donor.eligibilityStatus?.toLowerCase()}`}&gt;{donor.eligibilityStatus || 'Eligible'}&lt;/span&gt;&lt;/td&gt;
+                      &lt;td className="action-cell-buttons"&gt;
+                        &lt;button className="edit-action-btn" onClick={() =&gt; openEditModal(donor)}&gt;Modify&lt;/button&gt;
+                        &lt;button className="delete-action-btn" onClick={() =&gt; handleDeleteDonor(donor.id)}&gt;Purge&lt;/button&gt;
+                      &lt;/td&gt;
+                    &lt;/tr&gt;
+                  );
+                }) : (
+                  &lt;tr&gt;&lt;td colSpan="9" className="empty-row"&gt;No active profiles matching query criteria.&lt;/td&gt;&lt;/tr&gt;
+                )}
+              &lt;/tbody&gt;
+            &lt;/table&gt;
+          )}
+        &lt;/main&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+
+export default DonorsTab;</pre>
+
+<h3>components/StatsTab.jsx</h3>
+<p>The statistics tab: summary cards (total, eligible, deferred) and a blood-group distribution bar chart.
+It derives all its numbers from the <code>donors</code> list it receives.</p>
+<pre>function StatsTab({ donors, bloodGroups }) {
+  const statsTotalDonors = donors.length;
+  const statsEligibleCount = donors.filter(d =&gt; d.eligibilityStatus?.toLowerCase() === 'eligible').length;
+  const statsDeferredCount = donors.filter(d =&gt; d.eligibilityStatus?.toLowerCase() === 'deferred').length;
+
+  const groupDistribution = bloodGroups.reduce((acc, group) =&gt; {
+    acc[group] = donors.filter(d =&gt; {
+      const gText = d.bloodGroup && typeof d.bloodGroup === 'object' ? d.bloodGroup.name : d.bloodGroup;
+      return gText === group;
+    }).length;
+    return acc;
+  }, {});
+  const maxDistributionValue = Math.max(...Object.values(groupDistribution), 1);
+
+  return (
+    &lt;div className="tab-view-container animate-fade-in"&gt;
+      &lt;div className="analytics-summary-cards"&gt;
+        &lt;div className="stat-card-widget"&gt;&lt;span className="widget-label"&gt;Total Indexed Database Donors&lt;/span&gt;&lt;h3&gt;{statsTotalDonors} Profiles&lt;/h3&gt;&lt;/div&gt;
+        &lt;div className="stat-card-widget"&gt;&lt;span className="widget-label"&gt;Active Eligible Candidates&lt;/span&gt;&lt;h3&gt;{statsEligibleCount} Users&lt;/h3&gt;&lt;/div&gt;
+        &lt;div className="stat-card-widget"&gt;&lt;span className="widget-label"&gt;Temporary Medical Deferrals&lt;/span&gt;&lt;h3&gt;{statsDeferredCount} Holds&lt;/h3&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div className="chart-analytics-frame-container"&gt;
+        &lt;h3&gt;BLOOD GROUP DISTRIBUTION COUNTS&lt;/h3&gt;
+        &lt;div className="native-bar-chart-grid"&gt;
+          {bloodGroups.map(group =&gt; {
+            const count = groupDistribution[group] || 0;
+            const percentageHeight = (count / maxDistributionValue) * 100;
+            return (
+              &lt;div className="chart-column-node" key={group}&gt;
+                &lt;div className="chart-bar-value-label"&gt;{count}&lt;/div&gt;
+                &lt;div className="chart-bar-pillar-wrapper"&gt;
+                  &lt;div className="chart-pillar-fill" style={{ height: `${Math.max(percentageHeight, 4)}%` }}&gt;&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div className="chart-axis-label-node"&gt;{group}&lt;/div&gt;
+              &lt;/div&gt;
+            );
+          })}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default StatsTab;</pre>
+
+<h3>components/LedgerTab.jsx</h3>
+<p>The ledger tab: a net-balance card, a sparkline of the running balance, and the full audit table. It walks
+the <code>auditLogs</code> oldest-to-newest to build a running balance.</p>
+<pre>function LedgerTab({ auditLogs, auditLoading }) {
+  let rollingCashBalance = 0;
+  const computedCashPoints = [...auditLogs].reverse().map(log =&gt; {
+    rollingCashBalance += Number(log.cashFlowAmount || 0);
+    return { ...log, rollingBalance: rollingCashBalance };
+  });
+  const finalNetWorth = rollingCashBalance;
+  const maxBalancePeak = Math.max(...computedCashPoints.map(p =&gt; Math.abs(p.rollingBalance)), 1);
+
+  return (
+    &lt;div className="tab-view-container animate-fade-in"&gt;
+      &lt;div className="financial-metric-sheet-card"&gt;
+        &lt;span className="widget-label"&gt;Net System Running Cash Flow Balance&lt;/span&gt;
+        &lt;h2 className={finalNetWorth &gt;= 0 ? 'cash-positive' : 'cash-negative'}&gt;PKR {finalNetWorth.toLocaleString()}&lt;/h2&gt;
+      &lt;/div&gt;
+
+      {auditLoading ? (
+        &lt;div className="alert-message loading-box"&gt;Interrogating Ledger Buffer Lines...&lt;/div&gt;
+      ) : (
+        &lt;table className="donor-table"&gt;
+          &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Log ID&lt;/th&gt;&lt;th&gt;Timestamp&lt;/th&gt;&lt;th&gt;Operation&lt;/th&gt;&lt;th&gt;Details&lt;/th&gt;&lt;th&gt;Classification&lt;/th&gt;&lt;th&gt;Cash Flow&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+          &lt;tbody&gt;
+            {auditLogs.length &gt; 0 ? auditLogs.map((log) =&gt; (
+              &lt;tr key={log.id}&gt;
+                &lt;td&gt;00{log.id}&lt;/td&gt;
+                &lt;td&gt;{new Date(log.timestamp).toLocaleString()}&lt;/td&gt;
+                &lt;td&gt;{log.operation}&lt;/td&gt;
+                &lt;td&gt;{log.details}&lt;/td&gt;
+                &lt;td&gt;&lt;span className={`type-tag-flag ${log.logType?.toLowerCase()}`}&gt;{log.logType}&lt;/span&gt;&lt;/td&gt;
+                &lt;td&gt;{log.cashFlowAmount &gt; 0 ? `+PKR ${log.cashFlowAmount}` : log.cashFlowAmount &lt; 0 ? `-PKR ${Math.abs(log.cashFlowAmount)}` : '&mdash;'}&lt;/td&gt;
+              &lt;/tr&gt;
+            )) : (
+              &lt;tr&gt;&lt;td colSpan="6" className="empty-row"&gt;No system logging history parameters found.&lt;/td&gt;&lt;/tr&gt;
+            )}
+          &lt;/tbody&gt;
+        &lt;/table&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+
+export default LedgerTab;</pre>
+
+<h3>components/SettingsTab.jsx</h3>
+<p>The settings tab: the light/dark theme switch. The theme is owned by App; this component reads <code>theme</code> and calls <code>setTheme</code>.</p>
+<pre>function SettingsTab({ theme, setTheme }) {
+  return (
+    &lt;div className="tab-view-container animate-fade-in"&gt;
+      &lt;div className="settings-panel-card"&gt;
+        &lt;h3&gt;Workspace Personalization&lt;/h3&gt;
+        &lt;div className="theme-toggle-switch-row"&gt;
+          &lt;button className={`theme-toggle-btn-option light-opt ${theme === 'light' ? 'selected' : ''}`} onClick={() =&gt; setTheme('light')}&gt;Light Theme&lt;/button&gt;
+          &lt;button className={`theme-toggle-btn-option dark-opt ${theme === 'dark' ? 'selected' : ''}`} onClick={() =&gt; setTheme('dark')}&gt;Dark Theme&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default SettingsTab;</pre>
+
+<h3>components/DonorModal.jsx</h3>
+<p>The add/edit dialog. The same form serves both modes; <code>formData</code>/<code>setFormData</code> are the controlled state,
+<code>onSubmit</code> sends it to the API, and <code>onClose</code> dismisses the modal.</p>
+<pre>function DonorModal({ formMode, formData, setFormData, bloodGroups, onClose, onSubmit }) {
+  return (
+    &lt;div className="modal-overlay"&gt;
+      &lt;div className="modal-card animate-fade-in"&gt;
+        &lt;h3&gt;{formMode === 'add' ? 'ONBOARD NEW REGISTRATION' : 'REVISE PROFILE METADATA'}&lt;/h3&gt;
+        &lt;form onSubmit={onSubmit}&gt;
+          &lt;div className="modal-grid-inputs"&gt;
+            &lt;div className="form-group"&gt;&lt;label&gt;First Name&lt;/label&gt;&lt;input type="text" value={formData.firstName} onChange={(e) =&gt; setFormData({ ...formData, firstName: e.target.value })} required /&gt;&lt;/div&gt;
+            &lt;div className="form-group"&gt;&lt;label&gt;Last Name&lt;/label&gt;&lt;input type="text" value={formData.lastName} onChange={(e) =&gt; setFormData({ ...formData, lastName: e.target.value })} required /&gt;&lt;/div&gt;
+            &lt;div className="form-group"&gt;&lt;label&gt;Donor Age&lt;/label&gt;&lt;input type="number" min="17" max="80" value={formData.age} onChange={(e) =&gt; setFormData({ ...formData, age: e.target.value })} required /&gt;&lt;/div&gt;
+            &lt;div className="form-group"&gt;&lt;label&gt;Blood Group&lt;/label&gt;
+              &lt;select value={formData.bloodGroup} onChange={(e) =&gt; setFormData({ ...formData, bloodGroup: e.target.value })}&gt;
+                {bloodGroups.map(g =&gt; &lt;option key={g} value={g}&gt;{g}&lt;/option&gt;)}
+              &lt;/select&gt;
+            &lt;/div&gt;
+            &lt;div className="form-group"&gt;&lt;label&gt;Gender&lt;/label&gt;
+              &lt;select value={formData.gender} onChange={(e) =&gt; setFormData({ ...formData, gender: e.target.value })}&gt;
+                &lt;option&gt;Male&lt;/option&gt;&lt;option&gt;Female&lt;/option&gt;&lt;option&gt;Other&lt;/option&gt;
+              &lt;/select&gt;
+            &lt;/div&gt;
+            &lt;div className="form-group"&gt;&lt;label&gt;Phone Line&lt;/label&gt;&lt;input type="text" value={formData.phone} onChange={(e) =&gt; setFormData({ ...formData, phone: e.target.value })} required /&gt;&lt;/div&gt;
+            &lt;div className="form-group full-width-input"&gt;&lt;label&gt;Email Address&lt;/label&gt;&lt;input type="email" value={formData.email} onChange={(e) =&gt; setFormData({ ...formData, email: e.target.value })} required /&gt;&lt;/div&gt;
+            &lt;div className="form-group full-width-input"&gt;&lt;label&gt;Eligibility Clearance&lt;/label&gt;
+              &lt;select value={formData.eligibilityStatus} onChange={(e) =&gt; setFormData({ ...formData, eligibilityStatus: e.target.value })}&gt;
+                &lt;option&gt;Eligible&lt;/option&gt;&lt;option&gt;Deferred&lt;/option&gt;&lt;option&gt;Ineligible&lt;/option&gt;
+              &lt;/select&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div className="modal-action-row"&gt;
+            &lt;button type="button" className="cancel-modal-btn" onClick={onClose}&gt;Abort&lt;/button&gt;
+            &lt;button type="submit" className="save-modal-btn"&gt;Commit Package&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/form&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default DonorModal;</pre>
+
+<h3>components/Footer.jsx</h3>
+<p>A static footer with the centre's address and copyright line.</p>
+<pre>function Footer() {
+  return (
+    &lt;footer className="workspace-institutional-footer"&gt;
+      &lt;div className="footer-content-divider"&gt;&lt;/div&gt;
+      &lt;p className="footer-address-text"&gt;Regional Blood Centre (RBC), Street 5, Sector H-8/4, Islamabad, Pakistan&lt;/p&gt;
+      &lt;p className="footer-copyright-text"&gt;HemoGrid Administrative Infrastructure&lt;/p&gt;
+    &lt;/footer&gt;
+  );
+}
+
+export default Footer;</pre>
+
+<p><b>Styles note:</b> the visual appearance, including the light/dark theme colour tokens, lives in
+<code>src/index.css</code> and <code>src/App.css</code>. These CSS files define variables (e.g. background, text and accent
+colours) that switch based on the <code>theme-wrapper</code> class, which is why toggling the theme instantly restyles
+the whole app.</p>
+
+<!-- ============================ CHAPTER 7 ============================ -->
+<h1 class="pagebreak">Chapter 7 &mdash; How a Request Flows End-to-End</h1>
+<p class="chapter-intro">This chapter follows a single action through every layer, tying the previous chapters together.</p>
+
+<p>Example: an admin edits a donor's age and saves.</p>
+<ol>
+<li>In <b>DonorModal.jsx</b>, the admin changes the age field and clicks &ldquo;Commit Package&rdquo;.</li>
+<li><b>App.jsx</b> <code>handleFormSubmit</code> runs and calls <code>API.put('/donors/5', formData)</code>.</li>
+<li><b>api.js</b> sends <code>PUT http://localhost:5236/api/donors/5</code> with the form as JSON.</li>
+<li><b>Program.cs</b> allows the request through CORS and routes it by verb to <b>DonorUpdateController</b>.</li>
+<li>The controller finds the donor via EF Core, uses <b>DonorWriteHelpers</b> to apply the fields and convert age to a birth date, and calls <code>SaveChangesAsync()</code> which issues an <code>UPDATE</code> to <b>MySQL</b>.</li>
+<li>It records a &ldquo;PROFILE MODIFICATION&rdquo; line in <b>AuditLedger</b> and returns <code>204 No Content</code>.</li>
+<li>Back in App.jsx, <code>handleSearch()</code> and <code>fetchAuditTrail()</code> re-pull fresh data, so the table and ledger update immediately.</li>
+</ol>
+
+<!-- ============================ CHAPTER 8 ============================ -->
+<h1 class="pagebreak">Chapter 8 &mdash; Running the Application</h1>
+<p class="chapter-intro">This chapter lists the commands to build and start both halves of the system.</p>
+
+<h2>8.1 Prerequisites</h2>
+<ul>
+<li>.NET SDK (8 or 9) installed.</li>
+<li>Node.js + npm installed.</li>
+<li>MySQL running, with the <code>blood_bank_ms</code> database imported and credentials matching <code>appsettings.json</code>.</li>
+</ul>
+
+<h2>8.2 Start the backend</h2>
+<pre>cd "C:\Users\While Geek\Documents\Blood bank"
+dotnet build BloodBankAPI\BloodBankAPI.csproj
+dotnet run   --project BloodBankAPI\BloodBankAPI.csproj
+# Look for: Now listening on: http://localhost:5236</pre>
+
+<h2>8.3 Start the frontend</h2>
+<pre>cd "C:\Users\While Geek\Documents\Blood bank\blood-bank-ui"
+npm install      # first time only
+npm run dev
+# Open the printed URL (usually http://localhost:5173)</pre>
+
+<h2>8.4 Log in</h2>
+<p>Use the admin credentials configured in <code>App.jsx</code> (username <code>admin</code>). You then land on the Donor
+Registry, where you can search, add, modify and purge donors, and view Statistics and the Ledger.</p>
+
+<p class="footer">HemoGrid &mdash; Blood Bank Management System &middot; Project Documentation &amp; Complete Code Reference</p>
+
+</body>
+</html>
