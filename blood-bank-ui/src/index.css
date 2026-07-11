@@ -401,7 +401,8 @@ body {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: var(--card-shadow);
 }
 
@@ -1217,3 +1218,262 @@ body {
 @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulseGlow { from { transform: scale(1); } to { transform: scale(1.15); } }
 @keyframes movingGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+/* --- RESPONSIVE: SHORT HEADER LABELS (desktop shows long) --- */
+.header-title-short,
+.action-btn-short {
+  display: none;
+}
+
+/* --- MOBILE & TABLET OPTIMIZATION --- */
+@media (max-width: 768px) {
+  .app-content-viewport {
+    margin-left: 0 !important;
+    padding: 1rem 1rem 2rem;
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  }
+
+  .app-sidebar {
+    width: min(280px, 86vw);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .app-workspace-layout.is-mobile:not(.sidebar-collapsed) .app-sidebar {
+    transform: translateX(0);
+  }
+
+  .sidebar-mobile-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    cursor: pointer;
+  }
+
+  .viewport-top-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .viewport-header-left-group {
+    gap: 0.75rem;
+  }
+
+  .viewport-header-right-group {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .header-title-long,
+  .action-btn-long {
+    display: none;
+  }
+
+  .header-title-short,
+  .action-btn-short {
+    display: inline;
+  }
+
+  .viewport-top-header h2 {
+    font-size: 1rem;
+    letter-spacing: 0.25px;
+  }
+
+  .header-admin-profile {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .header-admin-profile .profile-details {
+    min-width: 0;
+  }
+
+  .profile-name {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+
+  .profile-session {
+    font-size: 0.65rem;
+  }
+
+  .top-bar-action-btn {
+    padding: 0.65rem 1rem;
+    min-height: 44px;
+    flex-shrink: 0;
+  }
+
+  .hamburger-menu-toggle {
+    width: 32px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .google-search-container {
+    padding: 1.5rem 0 1rem;
+  }
+
+  .google-logo {
+    font-size: 1.35rem;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+  }
+
+  .google-select,
+  .google-search-btn,
+  .nav-menu-item,
+  .login-btn,
+  .sidebar-logout-btn {
+    min-height: 44px;
+  }
+
+  .donor-table {
+    min-width: 680px;
+  }
+
+  .donor-table th,
+  .donor-table td {
+    padding: 0.75rem 0.65rem;
+    font-size: 0.78rem;
+  }
+
+  .action-cell-buttons {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .edit-action-btn,
+  .delete-action-btn {
+    min-height: 36px;
+    width: 100%;
+  }
+
+  .analytics-summary-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .financial-analytics-wrapper-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .native-bar-chart-grid {
+    grid-template-columns: repeat(8, minmax(28px, 1fr));
+    gap: 0.5rem;
+    height: 180px;
+    overflow-x: auto;
+    padding-bottom: 0.75rem;
+  }
+
+  .chart-analytics-frame-container,
+  .settings-panel-card {
+    padding: 1.25rem;
+  }
+
+  .settings-control-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .theme-toggle-switch-row {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .theme-toggle-btn-option {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .modal-card {
+    padding: 1.5rem 1.25rem;
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+
+  .modal-grid-inputs {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .login-wrapper {
+    padding: 1rem;
+    align-items: flex-start;
+    padding-top: max(2rem, env(safe-area-inset-top));
+  }
+
+  .login-glow-box {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .login-card {
+    padding: 2rem 1.25rem;
+    max-width: none;
+  }
+
+  .login-card h2 {
+    font-size: 1.25rem;
+  }
+
+  .workspace-institutional-footer {
+    padding-top: 2rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .footer-address-text,
+  .footer-copyright-text {
+    font-size: 0.7rem;
+    line-height: 1.5;
+  }
+
+  .sidebar-brand-area {
+    padding: 1.25rem 1rem;
+  }
+
+  .sidebar-contact-box {
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-content-viewport {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .header-admin-profile .profile-status {
+    display: none;
+  }
+
+  .profile-name {
+    max-width: 100px;
+  }
+
+  .google-logo {
+    font-size: 1.15rem;
+  }
+
+  .stat-card-widget h3 {
+    font-size: 1.25rem;
+  }
+}

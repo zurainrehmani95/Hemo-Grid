@@ -44,10 +44,18 @@ function TopHeader({ activeTab, sidebarCollapsed, setSidebarCollapsed, onAddDono
           <span></span><span></span><span></span>
         </button>
         <h2>
-          {activeTab === 'donors' && 'DONOR REGISTRY CONTROL'}
-          {activeTab === 'stats' && 'ANALYTICS & DISTRIBUTIONS'}
-          {activeTab === 'audit' && 'SYSTEM REVENUE LEDGERS'}
-          {activeTab === 'settings' && 'SYSTEM WORKSPACE CONFIGURATIONS'}
+          <span className="header-title-long">
+            {activeTab === 'donors' && 'DONOR REGISTRY CONTROL'}
+            {activeTab === 'stats' && 'ANALYTICS & DISTRIBUTIONS'}
+            {activeTab === 'audit' && 'SYSTEM REVENUE LEDGERS'}
+            {activeTab === 'settings' && 'SYSTEM WORKSPACE CONFIGURATIONS'}
+          </span>
+          <span className="header-title-short">
+            {activeTab === 'donors' && 'DONORS'}
+            {activeTab === 'stats' && 'STATS'}
+            {activeTab === 'audit' && 'LEDGER'}
+            {activeTab === 'settings' && 'SETTINGS'}
+          </span>
         </h2>
       </div>
 
@@ -62,7 +70,10 @@ function TopHeader({ activeTab, sidebarCollapsed, setSidebarCollapsed, onAddDono
         </div>
 
         {activeTab === 'donors' && (
-          <button className="top-bar-action-btn" onClick={onAddDonor}>+ Onboard New Donor</button>
+          <button className="top-bar-action-btn" onClick={onAddDonor}>
+            <span className="action-btn-long">+ Onboard New Donor</span>
+            <span className="action-btn-short">+ Add</span>
+          </button>
         )}
       </div>
     </header>

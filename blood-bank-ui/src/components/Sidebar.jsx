@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 // in the top header (see TopHeader). Navigation is handled by react-router `NavLink`s, which
 // change the URL and automatically apply the "active" class to the current route. `onLogout`
 // ends the session.
-function Sidebar({ onLogout }) {
+function Sidebar({ onLogout, onNavigate }) {
   // NavLink passes an { isActive } flag; reuse the existing `.nav-menu-item.active` styles.
   const linkClass = ({ isActive }) => `nav-menu-item ${isActive ? 'active' : ''}`;
 
@@ -16,16 +16,16 @@ function Sidebar({ onLogout }) {
       </div>
 
       <nav className="sidebar-nav-menu">
-        <NavLink to="/donors" className={linkClass}>
+        <NavLink to="/donors" className={linkClass} onClick={onNavigate}>
           <span className="menu-icon-slot">📂</span> Donor Registry
         </NavLink>
-        <NavLink to="/stats" className={linkClass}>
+        <NavLink to="/stats" className={linkClass} onClick={onNavigate}>
           <span className="menu-icon-slot">📊</span> Statistics Matrix
         </NavLink>
-        <NavLink to="/audit" className={linkClass}>
+        <NavLink to="/audit" className={linkClass} onClick={onNavigate}>
           <span className="menu-icon-slot">📈</span> Ledger & Cash Flow
         </NavLink>
-        <NavLink to="/settings" className={linkClass}>
+        <NavLink to="/settings" className={linkClass} onClick={onNavigate}>
           <span className="menu-icon-slot">⚙️</span> Control Settings
         </NavLink>
       </nav>

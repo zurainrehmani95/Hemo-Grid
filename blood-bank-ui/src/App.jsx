@@ -66,6 +66,20 @@ function App() {
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const onChange = (e) => {
+      setIsMobile(e.matches);
+      if (e.matches) setSidebarCollapsed(true);
+    };
+    onChange(mq);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   // Cycle the login-screen quote every couple of minutes
   useEffect(() => {
@@ -214,10 +228,20 @@ function App() {
         <div className="workspace-backdrop-vignette" />
       </div>
 
-      <div className={`app-workspace-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      <div className={`app-workspace-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${isMobile ? 'is-mobile' : ''}`}>
+
+        {!sidebarCollapsed && isMobile && (
+          <button
+            type="button"
+            className="sidebar-mobile-overlay"
+            aria-label="Close menu"
+            onClick={() => setSidebarCollapsed(true)}
+          />
+        )}
 
         <Sidebar
           onLogout={() => { sessionStorage.removeItem(TOKEN_KEY); setIsLoggedIn(false); setHasSearched(false); setAdminName(''); setLoginTime(null); }}
+          onNavigate={() => { if (isMobile) setSidebarCollapsed(true); }}
         />
 
         <div className="app-content-viewport">
