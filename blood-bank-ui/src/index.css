@@ -1046,6 +1046,9 @@ body {
   height: 100%;
   z-index: 1;
   pointer-events: none;
+  transform: translateZ(0);
+  will-change: transform;
+  contain: strict;
 }
 
 /* GLOWING BORDER CONTAINER - Smoothed out */
